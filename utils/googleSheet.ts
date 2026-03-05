@@ -5,10 +5,18 @@ const SPREADSHEET_ID = '1TnCX3WfR5vP0Z9Qgt3ygjK2lhBUkPSQ4f-0akEEQoCs'
 
 // Tạo auth dùng chung
 function getAuth() {
+    let credentialsJson: string
+    
+    // Try to read from environment variable first (for CI/CD)
+    if (process.env.SERVICE_ACCOUNT_JSON) {
+        credentialsJson = process.env.SERVICE_ACCOUNT_JSON
+    } else {
+        // Fall back to file (for local development)
+        credentialsJson = fs.readFileSync('service-account.json', 'utf8')
+    }
+    
     return new google.auth.GoogleAuth({
-        credentials: JSON.parse(
-            fs.readFileSync('service-account.json', 'utf8')
-        ),
+        credentials: JSON.parse(credentialsJson),
         scopes: ['https://www.googleapis.com/auth/spreadsheets'], // ✅ READ + WRITE
     })
 }
